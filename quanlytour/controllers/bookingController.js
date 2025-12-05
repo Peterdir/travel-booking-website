@@ -1,8 +1,9 @@
-import * as bookingService from '../services/bookingService.js'; // ✅ dùng named import
+import * as bookingService from '../services/bookingService.js'; 
 
 // [GET] /api/bookings
 export const getBookings = async (req, res) => {
   try {
+    console.log('Query parameters:', req.query);
     const filters = req.query;
     const bookings = await bookingService.getBookings(filters);
     res.status(200).json(bookings);

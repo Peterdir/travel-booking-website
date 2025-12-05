@@ -7,7 +7,6 @@ import Tour from '../models/Tour.js';
  */
 export const getBookings = async (filters = {}) => {
   const query = {};
-
   if (filters.status) query.status = filters.status;
   if (filters.tour) query.tour = filters.tour;
   if (filters.startDate) query.startDate = filters.startDate;
