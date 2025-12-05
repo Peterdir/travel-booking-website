@@ -1,5 +1,5 @@
 // server/src/models/Tour.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const TourSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
@@ -23,4 +23,4 @@ TourSchema.index({ price: 1 });
 TourSchema.index({ days: 1 });
 TourSchema.index({ isActive: 1 });
 
-module.exports = mongoose.model('Tour', TourSchema);
+export default mongoose.model('Tour', TourSchema);

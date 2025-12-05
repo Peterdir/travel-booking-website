@@ -1,5 +1,5 @@
 // server/src/models/Booking.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const BookingSchema = new mongoose.Schema({
   tour: { type: mongoose.Schema.Types.ObjectId, ref: 'Tour', required: true, index: true },
@@ -17,4 +17,4 @@ const BookingSchema = new mongoose.Schema({
 
 BookingSchema.index({ createdAt: -1 });
 
-module.exports = mongoose.model('Booking', BookingSchema);
+export default mongoose.model('Booking', BookingSchema);
