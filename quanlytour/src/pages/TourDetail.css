@@ -1,0 +1,159 @@
+.tour-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tour-hero {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+}
+
+.tour-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tour-hero-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+  padding: 40px;
+}
+
+.tour-hero-overlay h1 {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.tour-hero-overlay .location {
+  font-size: 20px;
+  opacity: 0.9;
+}
+
+.tour-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+  padding: 40px 20px;
+}
+
+.tour-section {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.tour-section h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.tour-section p {
+  line-height: 1.8;
+  color: #666;
+}
+
+.tour-details-list {
+  list-style: none;
+}
+
+.tour-details-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  color: #666;
+}
+
+.tour-details-list li:last-child {
+  border-bottom: none;
+}
+
+.start-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.date-item {
+  background: #f8f9fa;
+  padding: 12px 20px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.availability-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.availability-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 5px;
+}
+
+.availability-item .available {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.availability-item .full {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.tour-sidebar {
+  position: sticky;
+  top: 90px;
+  height: fit-content;
+}
+
+.booking-card {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.booking-card h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.price-highlight {
+  font-size: 36px;
+  font-weight: bold;
+  color: #667eea;
+  margin: 10px 0;
+}
+
+.price-note {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 968px) {
+  .tour-content {
+    grid-template-columns: 1fr;
+  }
+
+  .tour-sidebar {
+    position: static;
+  }
+
+  .tour-hero-overlay h1 {
+    font-size: 28px;
+  }
+}
