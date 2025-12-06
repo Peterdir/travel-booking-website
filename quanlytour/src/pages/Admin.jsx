@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tourAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { formatPrice, parsePrice, fileToBase64, validateImageFile } from '../utils/helpers';
 import './Admin.css';
 
 const Admin = () => {
@@ -13,6 +14,8 @@ const Admin = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingTour, setEditingTour] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [selectedDates, setSelectedDates] = useState([]);
   const [tourForm, setTourForm] = useState({
     name: '',
     coverImage: '',
@@ -54,18 +57,23 @@ const Admin = () => {
   const handleOpenModal = (tour = null) => {
     if (tour) {
       setEditingTour(tour);
+      setImagePreview(tour.coverImage);
+      const dates = tour.startDates?.map(d => new Date(d).toISOString().split('T')[0]) || [];
+      setSelectedDates(dates);
       setTourForm({
         name: tour.name,
         coverImage: tour.coverImage,
-        price: tour.price,
+        price: formatPrice(tour.price),
         location: tour.location,
         days: tour.days,
         maxGuests: tour.maxGuests,
         description: tour.description || '',
-        startDates: tour.startDates?.map(d => new Date(d).toISOString().split('T')[0]).join(', ') || '',
+        startDates: '',
       });
     } else {
       setEditingTour(null);
+      setImagePreview('');
+      setSelectedDates([]);
       setTourForm({
         name: '',
         coverImage: '',
@@ -83,6 +91,47 @@ const Admin = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingTour(null);
+    setImagePreview('');
+    setSelectedDates([]);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      validateImageFile(file);
+      const base64 = await fileToBase64(file);
+      setImagePreview(base64);
+      setTourForm({ ...tourForm, coverImage: base64 });
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handlePriceChange = (e) => {
+    const formatted = formatPrice(e.target.value);
+    setTourForm({ ...tourForm, price: formatted });
+  };
+
+  const handleAddDate = () => {
+    const dateInput = tourForm.startDates;
+    if (!dateInput) {
+      alert('Vui lòng chọn ngày');
+      return;
+    }
+    
+    if (selectedDates.includes(dateInput)) {
+      alert('Ngày này đã được thêm');
+      return;
+    }
+
+    setSelectedDates([...selectedDates, dateInput]);
+    setTourForm({ ...tourForm, startDates: '' });
+  };
+
+  const handleRemoveDate = (dateToRemove) => {
+    setSelectedDates(selectedDates.filter(date => date !== dateToRemove));
   };
 
   const handleFormChange = (e) => {
@@ -91,12 +140,16 @@ const Admin = () => {
 
   const handleSubmitTour = async (e) => {
     e.preventDefault();
+    
+    if (selectedDates.length === 0) {
+      alert('Vui lòng thêm ít nhất một ngày khởi hành');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const startDatesArray = tourForm.startDates
-        .split(',')
-        .map(date => new Date(date.trim()).toISOString());
+      const startDatesArray = selectedDates.map(date => new Date(date).toISOString());
 
       const availability = startDatesArray.map(date => ({
         startDate: date,
@@ -105,7 +158,7 @@ const Admin = () => {
 
       const tourData = {
         ...tourForm,
-        price: Number(tourForm.price),
+        price: Number(parsePrice(tourForm.price)),
         days: Number(tourForm.days),
         maxGuests: Number(tourForm.maxGuests),
         startDates: startDatesArray,
@@ -291,24 +344,30 @@ const Admin = () => {
               </div>
 
               <div className="form-group">
-                <label>Ảnh bìa (URL) *</label>
+                <label>Ảnh bìa *</label>
                 <input
-                  type="url"
-                  name="coverImage"
-                  value={tourForm.coverImage}
-                  onChange={handleFormChange}
-                  required
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="file-input"
                 />
+                {imagePreview && (
+                  <div className="image-preview">
+                    <img src={imagePreview} alt="Preview" />
+                  </div>
+                )}
+                <p className="form-hint">Chỉ chấp nhận JPG, PNG, WEBP. Tối đa 5MB</p>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
                   <label>Giá (VNĐ) *</label>
                   <input
-                    type="number"
+                    type="text"
                     name="price"
                     value={tourForm.price}
-                    onChange={handleFormChange}
+                    onChange={handlePriceChange}
+                    placeholder="10,000"
                     required
                   />
                 </div>
@@ -360,15 +419,43 @@ const Admin = () => {
               </div>
 
               <div className="form-group">
-                <label>Ngày khởi hành (phân cách bằng dấu phẩy) *</label>
-                <input
-                  type="text"
-                  name="startDates"
-                  value={tourForm.startDates}
-                  onChange={handleFormChange}
-                  placeholder="2025-12-15, 2025-12-20"
-                  required
-                />
+                <label>Ngày khởi hành *</label>
+                <div className="date-picker-group">
+                  <input
+                    type="date"
+                    name="startDates"
+                    value={tourForm.startDates}
+                    onChange={handleFormChange}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-small"
+                    onClick={handleAddDate}
+                  >
+                    Thêm ngày
+                  </button>
+                </div>
+                
+                {selectedDates.length > 0 && (
+                  <div className="selected-dates">
+                    <p className="form-hint">Các ngày đã chọn:</p>
+                    <div className="date-tags">
+                      {selectedDates.map((date, index) => (
+                        <span key={index} className="date-tag">
+                          {new Date(date).toLocaleDateString('vi-VN')}
+                          <button 
+                            type="button"
+                            onClick={() => handleRemoveDate(date)}
+                            className="remove-date"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="modal-actions">

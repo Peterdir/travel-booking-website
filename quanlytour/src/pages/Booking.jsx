@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { tourAPI, bookingAPI } from '../services/api';
+import { formatPrice } from '../utils/helpers';
 import './Booking.css';
 
 const Booking = () => {
